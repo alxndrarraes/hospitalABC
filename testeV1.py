@@ -10,13 +10,15 @@ sql_criar_bd = "CREATE DATABASE IF NOT EXISTS hospitalABC"
 bancodedados_mysql.criarBancoDados(conexao, sql_criar_bd)
 
 
+
 pacientes = {}
 sql_criar_tabela_pacientes = """
     CREATE TABLE IF NOT EXISTS pacientes(
         cpf INT AUTO_INCREMENT PRIMARY KEY,
+        nome VARCHAR(50),
         idade INT,
         endereco VARCHAR(50),
-        telefone INT,
+        telefone INT
     )
 """
 bancodedados_mysql.criarTabela(conexao, "hospitalABC", sql_criar_tabela_pacientes)
@@ -26,7 +28,7 @@ sql_criar_tabela_medicos = """
         crm INT AUTO_INCREMENT PRIMARY KEY,
         nome VARCHAR(50),
         especialidade VARCHAR(30),
-        telefone INT,
+        telefone INT
     )
 """
 bancodedados_mysql.criarTabela(conexao, "hospitalABC", sql_criar_tabela_medicos)
@@ -41,9 +43,9 @@ def adicionar_novo_paciente():
     endereco = input("Endereço: ")
     telefone = input("Telefone: ")
     pacientes[cpf] = {"nome": nome, "idade": idade, "endereco": endereco, "telefone": telefone}
-    sql_inserir_paciente = "INSERT INTO pacientes (cpf, nome, idade, endereco, telefone) VALUES (%d, %s, %d, %s, %d)"
+    sql_inserir_paciente = "INSERT INTO pacientes (cpf, nome, idade, endereco, telefone) VALUES (%s, %s, %s, %s, %s)"
     insert_paciente = (cpf, nome, idade, endereco, telefone)
-    bancodedados_mysql.insertNaTabela(conexao, "hospitalABC", sql_inserir_paciente)
+    bancodedados_mysql.insertNaTabela(conexao, sql_inserir_paciente, insert_paciente)
     print("Novo paciente cadastrado com sucesso!")
 
 def adicionar_novo_medico():
@@ -55,16 +57,15 @@ def adicionar_novo_medico():
     especialidade = input("Especialidade: ")
     telefone = input("Telefone: ")
     medicos[crm] = {"nome": nome, "especialidade": especialidade, "telefone": telefone}
-    sql_inserir_medico = "INSERT INTO medicos (crm, nome, especialidade, telefone) VALUES (%d, %s, %s, %d)"
+    sql_inserir_medico = "INSERT INTO medicos (crm, nome, especialidade, telefone) VALUES (%s, %s, %s, %s)"
     insert_medico = (crm, nome, especialidade, telefone)
-    bancodedados_mysql.insertNaTabela(conexao, "hospitalABC", sql_inserir_medico)
+    bancodedados_mysql.insertNaTabela(conexao, sql_inserir_medico, insert_medico)
     print("Novo medico cadastrado com sucesso!")
 
 def pesquisar_paciente_por_cpf():
     cpf = input("CPF do paciente: ")
     paciente = pacientes.get(cpf)
-    listar_db_pacientes = "SELECT * FROM pacientes WHERE cpf = %d"
-    listar_db_paciente_cpf = (cpf)
+    listar_db_pacientes = f"SELECT * FROM pacientes WHERE cpf = {cpf} "
     bancodedados_mysql.listarBancoDados(conexao, listar_db_pacientes)
     if paciente:
         print(f"Nome: {paciente['nome']}")
@@ -79,8 +80,7 @@ def pesquisar_paciente_por_cpf():
 def pesquisar_medico_por_crm():
     crm = input("CRM do medico: ")
     medico = medicos.get(crm)
-    listar_db_medicos = "SELECT * FROM medicos WHERE cpf = %d"
-    listar_db_medicos_cpf = (crm)
+    listar_db_medicos = f"SELECT * FROM medicos WHERE crm = {crm}"
     bancodedados_mysql.listarBancoDados(conexao, listar_db_medicos)
     if medico:
         print(f"Nome: {medico['nome']}")
@@ -93,8 +93,8 @@ def excluir_paciente_pelo_cpf():
     cpf = input("CPF do paciente a ser excluido: ")
     if cpf in pacientes:
         del pacientes[cpf]
-        sql_remover_paciente = "DELETE FROM pacientes WHERE cpf = %d"
-        sql_remover_paciente_cpf = (cpf)
+        sql_remover_paciente = "DELETE FROM pacientes WHERE cpf = %s"
+        sql_remover_paciente_cpf = (cpf,)
         bancodedados_mysql.excluirDadosTabela(conexao, sql_remover_paciente, sql_remover_paciente_cpf)
         print("Registro excluido com sucesso!")
     else:
@@ -106,8 +106,8 @@ def excluir_medico_pelo_crm():
     crm = input("CRM do medico a ser excluido: ")
     if crm in medicos:
         del medicos[crm]
-        sql_remover_medico = "DELETE FROM medicos WHERE crm = %d"
-        sql_remover_medico_crm = (crm)
+        sql_remover_medico = "DELETE FROM medicos WHERE crm = %s"
+        sql_remover_medico_crm = (crm,)
         bancodedados_mysql.excluirDadosTabela(conexao, sql_remover_medico, sql_remover_medico_crm)
         print("Registro excluido com sucesso!")
     else:
